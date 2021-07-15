@@ -1,6 +1,6 @@
 <template>
   <div v-if="editor">
-    <button @click="addImage">
+    <button @click="addIframe">
       add iframe
     </button>
 
@@ -38,7 +38,7 @@ export default {
   },
 
   methods: {
-    addImage() {
+    addIframe() {
       const url = window.prompt('URL')
 
       if (url) {
@@ -54,6 +54,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
 ::v-deep {
   .ProseMirror {
     > * + * {
@@ -63,7 +64,7 @@ export default {
 
   .iframe-wrapper {
     position: relative;
-    padding-bottom: 100/16*9%;
+    padding-bottom: math.div(100,16)*9%;
     height: 0;
     overflow: hidden;
     width: 100%;
