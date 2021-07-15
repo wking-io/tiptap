@@ -20,7 +20,6 @@ module.exports = {
         'html',
         'cypress',
         '@typescript-eslint',
-        'react-hooks',
       ],
       env: {
         'cypress/globals': true,
@@ -85,6 +84,17 @@ module.exports = {
         '@typescript-eslint/ban-types': 'off',
         '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
         '@typescript-eslint/explicit-module-boundary-types': 'off',
+      },
+    },
+    {
+      files: [
+        './**/react/**/*',
+        './**/*.jsx',
+      ],
+      plugins: [
+        'react-hooks',
+      ],
+      rules: {
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',
       },
