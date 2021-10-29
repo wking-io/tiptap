@@ -2,7 +2,7 @@
   <div>
     <editor-content :editor="editor" />
 
-    <div v-if="editor" :class="{'character-count': true, 'character-count--warning': editor.getCharacterCount() === limit}">
+    <div v-if="editor" :class="{'character-count': true, 'character-count--warning': editor.storage.characterCount.characters() === limit}">
       <svg
         height="20"
         width="20"
@@ -34,7 +34,7 @@
       </svg>
 
       <div class="character-count__text">
-        {{ editor.getCharacterCount() }}/{{ limit }} characters
+        {{ editor.storage.characterCount.characters() }}/{{ limit }} characters
       </div>
     </div>
   </div>
@@ -42,9 +42,10 @@
 
 <script>
 import { Editor, EditorContent } from '@tiptap/vue-3'
-import Document from '@tiptap/extension-document'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
+import StarterKit from '@tiptap/starter-kit'
+// import Document from '@tiptap/extension-document'
+// import Paragraph from '@tiptap/extension-paragraph'
+// import Text from '@tiptap/extension-text'
 import CharacterCount from '@tiptap/extension-character-count'
 import Mention from '@tiptap/extension-mention'
 import suggestion from './suggestion'
@@ -64,9 +65,10 @@ export default {
   mounted() {
     this.editor = new Editor({
       extensions: [
-        Document,
-        Paragraph,
-        Text,
+        StarterKit,
+        // Document,
+        // Paragraph,
+        // Text,
         CharacterCount.configure({
           limit: this.limit,
         }),
@@ -87,7 +89,7 @@ export default {
 
   computed: {
     percentage() {
-      return Math.round((100 / this.limit) * this.editor.getCharacterCount())
+      return Math.round((100 / this.limit) * this.editor.storage.characterCount.characters())
     },
   },
 

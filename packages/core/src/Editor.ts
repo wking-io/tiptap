@@ -429,7 +429,7 @@ export class Editor extends EventEmitter<EditorEvents> {
       blockSeparator,
       textSerializers: {
         ...textSerializers,
-        ...getTextSeralizersFromSchema(this.schema),
+        ...this.extensionManager.textSerializers,
       },
     })
   }
@@ -443,8 +443,12 @@ export class Editor extends EventEmitter<EditorEvents> {
 
   /**
    * Get the number of characters for the current document.
+   *
+   * @deprecated
    */
   public getCharacterCount(): number {
+    console.warn('[tiptap warn]: "editor.getCharacterCount()" is deprecated. Please use "editor.storage.characterCount.characters()" instead.')
+
     return this.state.doc.content.size - 2
   }
 

@@ -5,9 +5,15 @@ import { pasteRulesPlugin } from './PasteRule'
 import { EditorView, Decoration } from 'prosemirror-view'
 import { Plugin } from 'prosemirror-state'
 import { Editor } from './Editor'
-import { Extensions, RawCommands, AnyConfig } from './types'
+import {
+  Extensions,
+  RawCommands,
+  AnyConfig,
+  TextSerializer,
+} from './types'
 import getExtensionField from './helpers/getExtensionField'
 import getSchemaByResolvedExtensions from './helpers/getSchemaByResolvedExtensions'
+import getTextSeralizersFromSchema from './helpers/getTextSeralizersFromSchema'
 import getSchemaTypeByName from './helpers/getSchemaTypeByName'
 import getNodeType from './helpers/getNodeType'
 import splitExtensions from './helpers/splitExtensions'
@@ -27,10 +33,13 @@ export default class ExtensionManager {
 
   splittableMarks: string[] = []
 
+  textSerializers: Record<string, TextSerializer>
+
   constructor(extensions: Extensions, editor: Editor) {
     this.editor = editor
     this.extensions = ExtensionManager.resolve(extensions)
     this.schema = getSchemaByResolvedExtensions(this.extensions)
+    this.textSerializers = getTextSeralizersFromSchema(this.schema)
 
     this.extensions.forEach(extension => {
       // store extension storage in editor
