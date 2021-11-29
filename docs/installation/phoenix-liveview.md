@@ -1,12 +1,12 @@
 ---
-title: Livewire WYSIWYG
+title: LiveView WYSIWYG
 tableOfContents: true
 ---
 
-# Livewire
+# Phoenix LiveView
 
 ## Introduction
-The following guide describes how to integrate Tiptap with your [Livewire](https://laravel-livewire.com/) project.
+The following guide describes how to integrate Tiptap with your [Phoenix LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) project.
 
 ## index.js
 ```js
@@ -15,21 +15,11 @@ import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 
-Hooks.Editor = setupEditor();
 
-let liveSocket = new LiveSocket('/live', Socket, {
-  params: { _csrf_token: csrfToken },
-  hooks: Hooks,
-});
 
 function updateButtonState(buttons, editor) {
   buttons.forEach((btn) => {
-    if (btn.dataset.editorAction.includes('heading')) {
-      const [ action, level ] = btn.dataset.editorAction.split('-');
-      btn.classList.toggle('is-active', editor.isActive(action, { level: parseInt(level) }));
-    } else {
       btn.classList.toggle('is-active', editor.isActive(btn.dataset.editorAction));
-    }
   });
 }
 
@@ -38,20 +28,15 @@ function updateContent(root, editor) {
   if (input) input.value = JSON.stringify(editor.getJSON());
 }
 
-function onUpdate(root, actions, editor) {
-  updateButtonState(actions, editor);
-  updateContent(root, editor);
-}
-
-export function setupEditor() {
+function setupEditor() {
   let instance;
   let actionListener;
 
   return {
     mounted() {
-      const _this = this;
-      const element = this.el.querySelector('[phx-ref="element"]');
-      const editorActions = this.el.querySelectorAll('[data-editor-action]');
+      const root = this.el;
+      const element = root.querySelector('[phx-ref="element"]');
+      const editorActions = root.querySelectorAll('[data-editor-action]');
 
       if (element) {
         instance = new Editor({
@@ -62,9 +47,10 @@ export function setupEditor() {
           },
           element,
           extensions: [ StarterKit, Highlight, Underline ],
-          content: JSON.parse(this.el.dataset.content),
+          content: JSON.parse(root.dataset.content),
           onUpdate({ editor }) {
-            onUpdate(_this.el, editorActions, editor);
+            updateButtonState(editorActions, editor);
+            updateContent(root, editor);
           },
           onSelectionUpdate({ editor }) {
             updateButtonState(editorActions, editor);
@@ -72,30 +58,34 @@ export function setupEditor() {
         });
 
         actionListener = window.addEventListener('editor-button:action', (e) => {
-          if (e.detail.action === 'toggleHeading') {
-            instance.chain()[e.detail.action]({ level: e.detail.level }).focus().run();
-          } else {
-            instance.chain()[e.detail.action]().focus().run();
-          }
+          instance.chain()[e.detail.action]().focus().run();
         });
       }
     },
     updated() {
-      updateContent(this.el, instance);
+      updateContent(root, instance);
     },
     destroyed() {
+      instance.destroy();
       instance = null;
       window.removeEventListener('editor-button:action', actionListener);
     },
   };
 }
+
+Hooks.Editor = setupEditor();
+
+let liveSocket = new LiveSocket('/live', Socket, {
+  params: { _csrf_token: csrfToken },
+  hooks: Hooks,
+});
 ```
 
 ## editor.ex
+
 ```elixir
 defmodule WithoutCeasingWeb.Components.Editor do
   use Phoenix.Component
-  use Phoenix.HTML
 
   alias Phoenix.LiveView.JS
 
